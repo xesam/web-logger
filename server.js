@@ -1,37 +1,29 @@
 const express = require("express");
 const body_parser = require("body-parser");
 const fs = require("fs");
-let app = express();
-app.set("port", process.env.PORT || 4000);
+const winston = require('winston');
 
+const logger = winston.createLogger({
+    level: 'info',
+    format: winston.format.json(),
+    defaultMeta: { service: 'user-service' },
+    transports: [
+        new winston.transports.Console(),
+        new winston.transports.File({ filename: 'log.log' })
+    ],
+});
+
+const app = express();
+app.set("port", process.env.PORT || 3000);
 app.use(body_parser());
 app.use(express.static("public"));
 
-app.post("/regeo/save/", (req, res) => {
-    let geo = req.body;
-    console.log(`${geo.x},${geo.y}`);
-    fs.writeFile(
-        `./output/${geo.x}.csv`,
-        `${geo.x}#${geo.y}#${geo.lng}#${geo.lat}#${geo.format}#${JSON.stringify(
-            geo.components
-        )}\n`,
-        {
-            flag: "a",
-            encoding: "utf-8"
-        },
-        err => {
-            if (err) {
-                console.log(err);
-                res.json({
-                    status: 200
-                });
-            } else {
-                res.json({
-                    status: 0
-                });
-            }
-        }
-    );
+app.use("/log", (req, res) => {
+    const body = req.body;
+    logger.info(body);
+    res.json({
+        status: 200
+    });
 });
 
 app.listen(app.get("port"), () => {
