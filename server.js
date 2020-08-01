@@ -1,15 +1,14 @@
 const express = require("express");
 const body_parser = require("body-parser");
-const fs = require("fs");
 const winston = require('winston');
 
 const logger = winston.createLogger({
     level: 'info',
     format: winston.format.json(),
-    defaultMeta: { service: 'user-service' },
+    defaultMeta: {},
     transports: [
         new winston.transports.Console(),
-        new winston.transports.File({ filename: 'log.log' })
+        new winston.transports.File({filename: 'log.log'})
     ],
 });
 
@@ -18,8 +17,17 @@ app.set("port", process.env.PORT || 3000);
 app.use(body_parser());
 app.use(express.static("public"));
 
-app.use("/log", (req, res) => {
+app.all('*', (req, res, next) => {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "content-type");
+    res.header("Access-Control-Allow-Methods", "PUT,POST,GET,DELETE,OPTIONS");
+    res.header("Content-Type", "application/json;charset=utf-8");
+    next();
+});
+
+app.post("/log", (req, res) => {
     const body = req.body;
+    body.datetime = Date.now();
     logger.info(body);
     res.json({
         status: 200
@@ -27,9 +35,8 @@ app.use("/log", (req, res) => {
 });
 
 app.listen(app.get("port"), () => {
+    const port = app.get('port');
     console.log(
-        `Express started on http://localhost:${app.get(
-            "port"
-        )};press Ctrl-C to terminate`
+        `Express started on http://localhost:${port};press Ctrl-C to terminate`
     );
 });

@@ -3,26 +3,18 @@
 <head></head>
 
 <body>
-    <h1>Index</h1>
-    <button id="log-string">log-string</button>
-    <script src="./logger.js"></script>
-    <script>
-        document.querySelector('#log-string').addEventListener('click', e => {
-            fetch('/log', {
-                body: JSON.stringify({
-                    name: 'xesam',
-                    age: 18
-                }),
-                cache: 'no-cache',
-                credentials: 'same-origin',
-                headers: {
-                    'content-type': 'application/json'
-                },
-                method: 'POST',
-                mode: 'cors'
-            }).then(res => res.json()).then(res => console.log(res));
-        }, false);
-    </script>
+<h1>Index</h1>
+<button id="log-string">log-string</button>
+<script src="http://127.0.0.1:3000/logger.js"></script>
+<script>
+    const logger = new Logger('http://127.0.0.1:3000')
+    document.querySelector('#log-string').addEventListener('click', e => {
+        logger.log({
+            name: 'xesam',
+            age: 18
+        }).then(res => console.log(res));
+    }, false);
+</script>
 </body>
 
 </html>
